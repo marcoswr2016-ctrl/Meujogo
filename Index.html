@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+
+<html lang="pt-BR">
+
+<head>
+
+<meta charset="UTF-8">
+
+<title>Meu Jogo Pokémon</title>
+
+
+<style>
+
+    /* =====================================================
+       PÁGINA
+       ===================================================== */
+
+    body {
+        margin: 0;
+        background-color: black;
+
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        min-height: 100vh;
+    }
+
+
+    /* =====================================================
+       ÁREA DO JOGO
+       ===================================================== */
+
+    #jogo {
+        position: relative;
+        width: 600px;
+    }
+
+
+    /* =====================================================
+       MAPA
+       ===================================================== */
+
+    #mapa {
+        width: 600px;
+        display: block;
+
+        image-rendering: pixelated;
+    }
+
+
+    /* =====================================================
+       PERSONAGEM
+       ===================================================== */
+
+    #personagem {
+        position: absolute;
+
+        width: 30px;
+        height: 30px;
+
+        left: 300px;
+        top: 650px;
+
+        image-rendering: pixelated;
+
+        z-index: 2;
+    }
+
+
+    /* =====================================================
+       WOOPER
+       ===================================================== */
+
+    #wooper {
+        position: absolute;
+
+        width: 30px;
+        height: 30px;
+
+        left: 100px;
+        top: 200px;
+
+        image-rendering: pixelated;
+
+        z-index: 2;
+    }
+
+
+    /* =====================================================
+       TELA DE ENCONTRO
+       ===================================================== */
+
+    #telaEncontro {
+
+        /* Começa escondida */
+        display: none;
+
+        position: fixed;
+
+        left: 0;
+        top: 0;
+
+        width: 100%;
+        height: 100%;
+
+        background-color: black;
+
+        z-index: 10;
+
+        justify-content: center;
+        align-items: center;
+
+        flex-direction: column;
+    }
+
+
+    /* =====================================================
+       IMAGEM DO ENCONTRO
+       ===================================================== */
+
+    #imagemEncontro {
+
+        max-width: 90%;
+        max-height: 80%;
+
+        image-rendering: pixelated;
+    }
+
+
+    /* =====================================================
+       BOTÃO VOLTAR
+       ===================================================== */
+
+    #botaoVoltar {
+
+        margin-top: 20px;
+
+        padding: 12px 30px;
+
+        font-size: 18px;
+
+        cursor: pointer;
+    }
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<!-- =====================================================
+     JOGO
+     ===================================================== -->
+
+<div id="jogo">
+
+
+    <!-- MAPA -->
+
+    <img
+        id="mapa"
+        src="mapa-da-floresta-de-viridian.png"
+    >
+
+
+    <!-- PERSONAGEM -->
+
+    <img
+        id="personagem"
+        src="personagem.png"
+        alt="Personagem"
+    >
+
+
+    <!-- WOOPER -->
+
+    <img
+        id="wooper"
+        src="https://img.pokemondb.net/sprites/black-white/anim/normal/wooper.gif"
+        alt="Wooper"
+    >
+
+</div>
+
+
+
+<!-- =====================================================
+     TELA DE ENCONTRO
+     ===================================================== -->
+
+<div id="telaEncontro">
+
+
+    <!-- Imagem que aparece durante o encontro -->
+
+    <img
+        id="imagemEncontro"
+        src="encontro.jpg"
+        alt="Encontro com Wooper"
+    >
+
+
+    <!-- Botão para voltar ao mapa -->
+
+    <button id="botaoVoltar">
+        VOLTAR
+    </button>
+
+
+</div>
+
+
+
+<script>
+
+
+    // =====================================================
+    // PERSONAGEM
+    // =====================================================
+
+
+    // Pega o personagem do HTML
+    const personagem =
+        document.getElementById("personagem");
+
+
+    // Posição inicial X
+    let x = 300;
+
+
+    // Posição inicial Y
+    let y = 650;
+
+
+    // Velocidade do personagem
+    const velocidade = 5;
+
+
+
+    // =====================================================
+    // WOOPER
+    // =====================================================
+
+
+    // Pega o Wooper do HTML
+    const wooper =
+        document.getElementById("wooper");
+
+
+    // Posição X do Wooper
+    const wooperX = 100;
+
+
+    // Posição Y do Wooper
+    const wooperY = 200;
+
+
+    // Tamanho do Wooper
+    const wooperLargura = 30;
+    const wooperAltura = 30;
+
+
+
+    // =====================================================
+    // TELA DE ENCONTRO
+    // =====================================================
+
+
+    // Pega a tela de encontro
+    const telaEncontro =
+        document.getElementById("telaEncontro");
+
+
+    // Pega o botão voltar
+    const botaoVoltar =
+        document.getElementById("botaoVoltar");
+
+
+    // Indica se estamos atualmente
+    // dentro da tela de encontro
+    let emEncontro = false;
+
+
+
+    // =====================================================
+    // OBSTÁCULOS
+    // =====================================================
+
+
+    const obstaculos = [
+
+        // Lado esquerdo
+        {
+            x: 0,
+            y: 0,
+            largura: 10,
+            altura: 900
+        },
+
+        // Cima
+        {
+            x: 0,
+            y: 0,
+            largura: 700,
+            altura: 20
+        },
+
+        // Direita
+        {
+            x: 600,
+            y: 0,
+            largura: 20,
+            altura: 900
+        },
+
+        // Baixo
+        {
+            x: 0,
+            y: 700,
+            largura: 580,
+            altura: 10
+        },
+
+        {
+            x: -8,
+            y: 704,
+            largura: 603,
+            altura: 56
+        },
+
+        {
+            x: 188,
+            y: 512,
+            largura: 91,
+            altura: 94
+        },
+
+        {
+            x: 315,
+            y: 617,
+            largura: 29,
+            altura: 24
+        },
+
+        {
+            x: 0,
+            y: 17,
+            largura: 8,
+            altura: 675
+        },
+
+        {
+            x: 16,
+            y: 489,
+            largura: 93,
+            altura: 112
+        },
+
+        {
+            x: 521,
+            y: 512,
+            largura: 57,
+            altura: 91
+        },
+
+        {
+            x: 518,
+            y: 174,
+            largura: 69,
+            altura: 67
+        },
+
+        {
+            x: 506,
+            y: 324,
+            largura: 30,
+            altura: 133
+        },
+
+        {
+            x: 366,
+            y: 52,
+            largura: 166,
+            altura: 72
+        },
+
+        {
+            x: 6,
+            y: 4,
+            largura: 98,
+            altura: 70
+        },
+
+        {
+            x: 78,
+            y: 76,
+            largura: 23,
+            altura: 190
+        },
+
+        {
+            x: 177,
+            y: 96,
+            largura: 20,
+            altura: 158
+        },
+
+        {
+            x: 271,
+            y: 6,
+            largura: 19,
+            altura: 210
+        },
+
+        {
+            x: 200,
+            y: 254,
+            largura: 18,
+            altura: 53
+        },
+
+        {
+            x: 232,
+            y: 275,
+            largura: 133,
+            altura: 39
+        },
+
+        {
+            x: 376,
+            y: 206,
+            largura: 63,
+            altura: 389
+        },
+
+        {
+            x: 270,
+            y: 321,
+            largura: 99,
+            altura: 133
+        },
+
+        {
+            x: 197,
+            y: 394,
+            largura: 69,
+            altura: 60
+        },
+
+        {
+            x: 16,
+            y: 368,
+            largura: 162,
+            altura: 45
+        }
+
+    ];
+
+
+
+    // =====================================================
+    // VERIFICAR COLISÃO COM OBSTÁCULOS
+    // =====================================================
+
+
+    function verificaColisao(novoX, novoY) {
+
+
+        // Tamanho do personagem
+        const personagemLargura = 40;
+        const personagemAltura = 40;
+
+
+        // Percorre todos os obstáculos
+        for (let obstaculo of obstaculos) {
+
+
+            // Verifica se existe colisão
+            if (
+
+                novoX <
+                obstaculo.x + obstaculo.largura
+
+                &&
+
+                novoX + personagemLargura >
+                obstaculo.x
+
+                &&
+
+                novoY <
+                obstaculo.y + obstaculo.altura
+
+                &&
+
+                novoY + personagemAltura >
+                obstaculo.y
+
+            ) {
+
+
+                // Existe colisão
+                return true;
+
+            }
+
+        }
+
+
+        // Não existe colisão
+        return false;
+
+    }
+
+
+
+    // =====================================================
+    // VERIFICAR WOOPER
+    // =====================================================
+
+
+    function verificaWooper() {
+
+
+        // Tamanho do personagem
+        const personagemLargura = 40;
+        const personagemAltura = 40;
+
+
+        // Verifica se o personagem
+        // está encostando no Wooper
+        if (
+
+            x <
+            wooperX + wooperLargura
+
+            &&
+
+            x + personagemLargura >
+            wooperX
+
+            &&
+
+            y <
+            wooperY + wooperAltura
+
+            &&
+
+            y + personagemAltura >
+            wooperY
+
+        ) {
+
+
+            // Abre a tela de encontro
+            abrirEncontro();
+
+        }
+
+    }
+
+
+
+    // =====================================================
+    // ABRIR ENCONTRO
+    // =====================================================
+
+
+    function abrirEncontro() {
+
+
+        // Informa que estamos
+        // dentro do encontro
+        emEncontro = true;
+
+
+        // Mostra a tela de encontro
+        telaEncontro.style.display = "flex";
+
+
+        // Esconde o mapa
+        document.getElementById("jogo")
+            .style.display = "none";
+
+    }
+
+
+
+    // =====================================================
+    // VOLTAR PARA O MAPA
+    // =====================================================
+
+
+    function voltarParaMapa() {
+
+
+        // Sai do encontro
+        emEncontro = false;
+
+
+        // Esconde a tela de encontro
+        telaEncontro.style.display = "none";
+
+
+        // Mostra novamente o mapa
+        document.getElementById("jogo")
+            .style.display = "block";
+
+    }
+
+
+
+    // =====================================================
+    // BOTÃO VOLTAR
+    // =====================================================
+
+
+    botaoVoltar.addEventListener(
+        "click",
+        function() {
+
+            // Volta para o mapa
+            voltarParaMapa();
+
+        }
+    );
+
+
+
+    // =====================================================
+    // MOVIMENTAÇÃO
+    // =====================================================
+
+
+    document.addEventListener(
+        "keydown",
+        function(event) {
+
+
+            // Se estiver na tela de encontro,
+            // não permite movimentar o personagem
+            if (emEncontro) {
+
+                return;
+
+            }
+
+
+            // Posição temporária
+            let novoX = x;
+            let novoY = y;
+
+
+
+            // =================================================
+            // CIMA
+            // =================================================
+
+            if (event.key === "ArrowUp") {
+
+                novoY -= velocidade;
+
+            }
+
+
+
+            // =================================================
+            // BAIXO
+            // =================================================
+
+            if (event.key === "ArrowDown") {
+
+                novoY += velocidade;
+
+            }
+
+
+
+            // =================================================
+            // ESQUERDA
+            // =================================================
+
+            if (event.key === "ArrowLeft") {
+
+                novoX -= velocidade;
+
+            }
+
+
+
+            // =================================================
+            // DIREITA
+            // =================================================
+
+            if (event.key === "ArrowRight") {
+
+                novoX += velocidade;
+
+            }
+
+
+
+            // =================================================
+            // VERIFICAR OBSTÁCULO
+            // =================================================
+
+
+            // Só movimenta se não houver obstáculo
+            if (!verificaColisao(novoX, novoY)) {
+
+
+                // Atualiza X
+                x = novoX;
+
+
+                // Atualiza Y
+                y = novoY;
+
+
+                // Atualiza posição visual
+                personagem.style.left =
+                    x + "px";
+
+
+                personagem.style.top =
+                    y + "px";
+
+
+                // Verifica se encontrou o Wooper
+                verificaWooper();
+
+            }
+
+        }
+    );
+
+
+</script>
+
+</body>
+
+</html>
